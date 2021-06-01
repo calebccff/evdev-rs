@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/uinput.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uinput.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../evdev_rs/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/uinput.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uinput.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../evdev_rs/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -99,13 +99,21 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">device</span>::<span class="ident">Device</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">InputEvent</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">device</span>::<span class="ident">DeviceWrapper</span>, <span class="ident">InputEvent</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">c_int</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::<span class="ident">FromRawFd</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::<span class="ident">RawFd</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
 
@@ -116,62 +124,74 @@
     <span class="ident">raw</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev_uinput</span>,
 }
 
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">UInputDevice</span> {}
+
 <span class="kw">impl</span> <span class="ident">UInputDevice</span> {
+    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev_uinput</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>
+    }
+
     <span class="doccomment">/// Create a uinput device based on the given libevdev device.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The uinput device will be an exact copy of the libevdev device, minus</span>
     <span class="doccomment">/// the bits that uinput doesn&#39;t allow to be set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_device</span>(<span class="ident">device</span>: <span class="kw-2">&amp;</span><span class="ident">Device</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">UInputDevice</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_device</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeviceWrapper</span><span class="op">&gt;</span>(<span class="ident">device</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">UInputDevice</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">libevdev_uinput</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
             <span class="ident">raw</span>::<span class="ident">libevdev_uinput_create_from_device</span>(
-                <span class="ident">device</span>.<span class="ident">raw</span>,
+                <span class="ident">device</span>.<span class="ident">raw</span>(),
                 <span class="ident">raw</span>::<span class="ident">LIBEVDEV_UINPUT_OPEN_MANAGED</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">libevdev_uinput</span>,
             )
         };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">UInputDevice</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">UInputDevice</span> {
                 <span class="ident">raw</span>: <span class="ident">libevdev_uinput</span>,
             }),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 
-    <span class="macro">string_getter</span><span class="macro">!</span>(
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;Return the device node representing this uinput device.
+    <span class="doccomment">///Return the device node representing this uinput device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This relies on `libevdev_uinput_get_syspath()` to provide a valid syspath.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devnode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> { <span class="ident">ptr_to_str</span>(<span class="ident">raw</span>::<span class="ident">libevdev_uinput_get_devnode</span>(<span class="self">self</span>.<span class="ident">raw</span>())) }
+    }
 
-This relies on `libevdev_uinput_get_syspath()` to provide a valid syspath.&quot;</span>]</span>,
-        <span class="ident">devnode</span>, <span class="ident">libevdev_uinput_get_devnode</span>
-    );
-
-    <span class="macro">string_getter</span><span class="macro">!</span>(<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;Return the syspath representing this uinput device.
-
-If the UI_GET_SYSNAME ioctl not available, libevdev makes an educated
-guess. The UI_GET_SYSNAME ioctl is available since Linux 3.15.
-
-The syspath returned is the one of the input node itself
-(e.g. /sys/devices/virtual/input/input123), not the syspath of the
-device node returned with libevdev_uinput_get_devnode().&quot;</span>]</span>,
-        <span class="ident">syspath</span>, <span class="ident">libevdev_uinput_get_syspath</span>);
+    <span class="doccomment">///Return the syspath representing this uinput device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the UI_GET_SYSNAME ioctl not available, libevdev makes an educated</span>
+    <span class="doccomment">/// guess. The UI_GET_SYSNAME ioctl is available since Linux 3.15.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The syspath returned is the one of the input node itself</span>
+    <span class="doccomment">/// (e.g. /sys/devices/virtual/input/input123), not the syspath of the</span>
+    <span class="doccomment">/// device node returned with libevdev_uinput_get_devnode().</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">syspath</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> { <span class="ident">ptr_to_str</span>(<span class="ident">raw</span>::<span class="ident">libevdev_uinput_get_syspath</span>(<span class="self">self</span>.<span class="ident">raw</span>())) }
+    }
 
     <span class="doccomment">/// Return the file descriptor used to create this uinput device.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is the fd pointing to /dev/uinput. This file descriptor may be used</span>
     <span class="doccomment">/// to write events that are emitted by the uinput device. Closing this file</span>
-    <span class="doccomment">///  descriptor will destroy the uinput device.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_uinput_get_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>) };
-
-        <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">from_raw_fd</span>(<span class="ident">result</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">f</span>)
-            }
+    <span class="doccomment">/// descriptor will destroy the uinput device.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RawFd</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_uinput_get_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>()) } {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">result</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>),
         }
+    }
+
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.5.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `as_fd`. Some function names were changed so they
+        more closely match their type signature. See issue 42 for discussion
+        https://github.com/ndesh26/evdev-rs/issues/42&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RawFd</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">as_fd</span>()
     }
 
     <span class="doccomment">/// Post an event through the uinput device.</span>
@@ -179,17 +199,17 @@ device node returned with libevdev_uinput_get_devnode().&quot;</span>]</span>,
     <span class="doccomment">/// It is the caller&#39;s responsibility that any event sequence is terminated</span>
     <span class="doccomment">/// with an EV_SYN/SYN_REPORT/0 event. Otherwise, listeners on the device</span>
     <span class="doccomment">/// node will not see the events until the next EV_SYN event is posted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">InputEvent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">InputEvent</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>.<span class="ident">event_code</span>);
         <span class="kw">let</span> <span class="ident">ev_value</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">value</span> <span class="kw">as</span> <span class="ident">c_int</span>;
 
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_uinput_write_event</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="ident">ev_value</span>)
+            <span class="ident">raw</span>::<span class="ident">libevdev_uinput_write_event</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="ident">ev_value</span>)
         };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 }
@@ -197,9 +217,9 @@ device node returned with libevdev_uinput_get_devnode().&quot;</span>]</span>,
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">UInputDevice</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_uinput_destroy</span>(<span class="self">self</span>.<span class="ident">raw</span>);
+            <span class="ident">raw</span>::<span class="ident">libevdev_uinput_destroy</span>(<span class="self">self</span>.<span class="ident">raw</span>());
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "evdev_rs";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "evdev_rs";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

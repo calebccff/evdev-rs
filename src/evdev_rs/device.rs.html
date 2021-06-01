@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/device.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>device.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../evdev_rs/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/device.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>device.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../evdev_rs/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -718,69 +718,310 @@
 <span id="718">718</span>
 <span id="719">719</span>
 <span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AbsInfo</span>, <span class="ident">GrabMode</span>, <span class="ident">InputEvent</span>, <span class="ident">LedState</span>, <span class="ident">ReadFlag</span>, <span class="ident">ReadStatus</span>, <span class="ident">TimeVal</span>};
 <span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_uint</span>, <span class="ident">c_void</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">Any</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">FromRawFd</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>, <span class="ident">ptr</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">enums</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">evdev_sys</span> <span class="kw">as</span> <span class="ident">raw</span>;
 
-<span class="doccomment">/// Opaque struct representing an evdev device</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Device</span> {
-    <span class="comment">// The file descriptor of the device must live as long as the device itself.</span>
-    <span class="ident">_file</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">raw</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span>,
-}
+<span class="doccomment">/// Abstraction over structs which contain an inner `*mut libevdev`</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DeviceWrapper</span> {
+    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span>;
 
-<span class="kw">impl</span> <span class="ident">Device</span> {
-    <span class="doccomment">/// Initialize a new libevdev device.</span>
+    <span class="doccomment">/// Forcibly enable an EventType/InputProp on this device, even if the underlying</span>
+    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
+    <span class="doccomment">/// report such events, it will now return true for has().</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This function only initializesthe struct to sane default values.</span>
-    <span class="doccomment">/// To actually hook up the device to a kernel device, use `set_fd`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">libevdev</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_new</span>() };
-
-        <span class="kw">if</span> <span class="ident">libevdev</span>.<span class="ident">is_null</span>() {
-            <span class="prelude-val">None</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device.</span>
+    <span class="kw">fn</span> <span class="ident">enable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">enable_event_type</span>(<span class="ident">ev_type</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">enable_event_code</span>(<span class="ident">ev_code</span>, <span class="prelude-val">None</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prop</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">InputProp</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">enable_property</span>(<span class="ident">prop</span>)
         } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">Device</span> {
-                <span class="ident">_file</span>: <span class="prelude-val">None</span>,
-                <span class="ident">raw</span>: <span class="ident">libevdev</span>,
-            })
+            <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="number">1</span>))
         }
     }
 
-    <span class="doccomment">/// Initialize a new libevdev device from the given fd.</span>
+    <span class="doccomment">/// Enables this property, a call to `set_file` will overwrite any previously set values</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a shortcut for</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// use evdev_rs::Device;</span>
-    <span class="doccomment">/// # use std::fs::File;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut device = Device::new().unwrap();</span>
-    <span class="doccomment">/// # let fd = File::open(&quot;/dev/input/event0&quot;).unwrap();</span>
-    <span class="doccomment">/// device.set_fd(fd);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_fd</span>(<span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">libevdev</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
+    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">enable_property</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prop</span>: <span class="kw-2">&amp;</span><span class="ident">InputProp</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_new_from_fd</span>(<span class="ident">file</span>.<span class="ident">as_raw_fd</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">libevdev</span>) };
+            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_enable_property</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">*</span><span class="ident">prop</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="kw">as</span> <span class="ident">i32</span> };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Device</span> {
-                <span class="ident">_file</span>: <span class="prelude-val">Some</span>(<span class="ident">file</span>),
-                <span class="ident">raw</span>: <span class="ident">libevdev</span>,
-            }),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Forcibly enable an event type on this device, even if the underlying</span>
+    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
+    <span class="doccomment">/// report such events, it will now return true for libevdev_has_event_type().</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">enable_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_enable_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Forcibly enable an event type on this device, even if the underlying</span>
+    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
+    <span class="doccomment">/// report such events, it will now return true for libevdev_has_event_code().</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The last argument depends on the type and code:</span>
+    <span class="doccomment">/// If type is EV_ABS, data must be a pointer to a struct input_absinfo</span>
+    <span class="doccomment">/// containing the data for this axis.</span>
+    <span class="doccomment">/// If type is EV_REP, data must be a pointer to a int containing the data</span>
+    <span class="doccomment">/// for this axis.</span>
+    <span class="doccomment">/// For all other types, the argument must be `None`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">enable_event_code</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ev_code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>,
+        <span class="ident">blob</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">ev_code</span>);
+
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">blob</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
+                <span class="ident">data</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">AbsInfo</span><span class="op">&gt;</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">absinfo</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">absinfo</span>.<span class="ident">as_raw</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>)
+            })
+            .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="ident">ptr</span>::<span class="ident">null</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>);
+
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="ident">raw</span>::<span class="ident">libevdev_enable_event_code</span>(
+                <span class="self">self</span>.<span class="ident">raw</span>(),
+                <span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
+                <span class="ident">ev_code</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
+                <span class="ident">data</span>,
+            )
+        };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Forcibly disable an EventType/EventCode on this device, even if the</span>
+    <span class="doccomment">/// underlying device provides it. This effectively mutes the respective set of</span>
+    <span class="doccomment">/// events. has() will return false for this EventType/EventCode</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In most cases, a caller likely only wants to disable a single code, not</span>
+    <span class="doccomment">/// the whole type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Disabling EV_SYN will not work. In Peter&#39;s Words &quot;Don&#39;t shoot yourself</span>
+    <span class="doccomment">/// in the foot. It hurts&quot;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device.</span>
+    <span class="kw">fn</span> <span class="ident">disable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">disable_event_type</span>(<span class="ident">ev_type</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">disable_event_code</span>(<span class="ident">ev_code</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="number">1</span>))
+        }
+    }
+
+    <span class="doccomment">/// Forcibly disable an event type on this device, even if the underlying</span>
+    <span class="doccomment">/// device provides it. This effectively mutes the respective set of</span>
+    <span class="doccomment">/// events. libevdev will filter any events matching this type and none will</span>
+    <span class="doccomment">/// reach the caller. libevdev_has_event_type() will return false for this</span>
+    <span class="doccomment">/// type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In most cases, a caller likely only wants to disable a single code, not</span>
+    <span class="doccomment">/// the whole type. Use `disable_event_code` for that.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Disabling EV_SYN will not work. In Peter&#39;s Words &quot;Don&#39;t shoot yourself</span>
+    <span class="doccomment">/// in the foot. It hurts&quot;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `disable` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">disable_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_disable_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+    <span class="doccomment">/// Forcibly disable an event code on this device, even if the underlying</span>
+    <span class="doccomment">/// device provides it. This effectively mutes the respective set of</span>
+    <span class="doccomment">/// events. libevdev will filter any events matching this type and code and</span>
+    <span class="doccomment">/// none will reach the caller. `has_event_code` will return false for</span>
+    <span class="doccomment">/// this code.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Disabling all event codes for a given type will not disable the event</span>
+    <span class="doccomment">/// type. Use `disable_event_type` for that.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Disabling codes of type EV_SYN will not work. Don&#39;t shoot yourself in the</span>
+    <span class="doccomment">/// foot. It hurts.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `disable` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">disable_event_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_disable_event_code</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_type</span>, <span class="ident">ev_code</span>) };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Returns `true` if device support the InputProp/EventType/EventCode and false otherwise</span>
+    <span class="kw">fn</span> <span class="ident">has</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">has_event_type</span>(<span class="ident">ev_type</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">has_event_code</span>(<span class="ident">ev_code</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prop</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">InputProp</span><span class="op">&gt;</span>() {
+            <span class="self">self</span>.<span class="ident">has_property</span>(<span class="ident">prop</span>)
+        } <span class="kw">else</span> {
+            <span class="bool-val">false</span>
+        }
+    }
+
+    <span class="doccomment">/// Returns `true` if device support the property and false otherwise</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">has_property</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prop</span>: <span class="kw-2">&amp;</span><span class="ident">InputProp</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_property</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">*</span><span class="ident">prop</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="op">!=</span> <span class="number">0</span> }
+    }
+
+    <span class="doccomment">/// Returns `true` is the device support this event type and `false` otherwise</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">has_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="op">!=</span> <span class="number">0</span> }
+    }
+
+    <span class="doccomment">/// Return `true` is the device support this event type and code and `false` otherwise</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
+    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
+    <span class="kw">fn</span> <span class="ident">has_event_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+            <span class="ident">raw</span>::<span class="ident">libevdev_has_event_code</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">!=</span> <span class="number">0</span>
         }
     }
 
@@ -801,265 +1042,6 @@
         <span class="ident">set_uniq</span>,
         <span class="ident">libevdev_set_uniq</span>
     );
-
-    <span class="doccomment">/// Returns the file associated with the device</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// if the `set_fd` hasn&#39;t been called yet then it return `None`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>) };
-
-        <span class="kw">if</span> <span class="ident">result</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">from_raw_fd</span>(<span class="ident">result</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">f</span>)
-            }
-        }
-    }
-
-    <span class="doccomment">/// Set the file for this struct and initialize internal data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function may only be called once per device. If the device changed and</span>
-    <span class="doccomment">/// you need to re-read a device, use `new` method. If you need to change the file after</span>
-    <span class="doccomment">/// closing and re-opening the same device, use `change_fd`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unless otherwise specified, evdev function behavior is undefined until</span>
-    <span class="doccomment">/// a successfull call to `set_fd`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_fd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_set_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">file</span>.<span class="ident">as_raw_fd</span>()) };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">_file</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">file</span>);
-                <span class="prelude-val">Ok</span>(())
-            }
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Change the fd for this device, without re-reading the actual device.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the fd changes after initializing the device, for example after a</span>
-    <span class="doccomment">/// VT-switch in the X.org X server, this function updates the internal fd</span>
-    <span class="doccomment">/// to the newly opened. No check is made that new fd points to the same</span>
-    <span class="doccomment">/// device. If the device has changed, evdev&#39;s behavior is undefined.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// evdev device does not sync itself after changing the fd and keeps the current</span>
-    <span class="doccomment">/// device state. Use next_event with the FORCE_SYNC flag to force a re-sync.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,ignore</span>
-    <span class="doccomment">/// dev.change_fd(new_fd);</span>
-    <span class="doccomment">/// dev.next_event(evdev::FORCE_SYNC);</span>
-    <span class="doccomment">/// while dev.next_event(evdev::SYNC).ok().unwrap().0 == ReadStatus::SYNC</span>
-    <span class="doccomment">///                             {} // noop</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// After changing the fd, the device is assumed ungrabbed and a caller must</span>
-    <span class="doccomment">/// call libevdev_grab() again.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is an error to call this function before calling set_fd().</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_fd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_change_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">file</span>.<span class="ident">as_raw_fd</span>()) };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">_file</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">file</span>);
-                <span class="prelude-val">Ok</span>(())
-            }
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Grab or ungrab the device through a kernel EVIOCGRAB.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This prevents other clients (including kernel-internal ones such as</span>
-    <span class="doccomment">/// rfkill) from receiving events from this device. This is generally a</span>
-    <span class="doccomment">/// bad idea. Don&#39;t do this.Grabbing an already grabbed device, or</span>
-    <span class="doccomment">/// ungrabbing an ungrabbed device is a noop and always succeeds.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A grab is an operation tied to a file descriptor, not a device. If a</span>
-    <span class="doccomment">/// client changes the file descriptor with libevdev_change_fd(), it must</span>
-    <span class="doccomment">/// also re-issue a grab with libevdev_grab().</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">grab</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">grab</span>: <span class="ident">GrabMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_grab</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">grab</span> <span class="kw">as</span> <span class="ident">c_int</span>) };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Get the axis info for the given axis, as advertised by the kernel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns the `AbsInfo` for the given the code or None if the device</span>
-    <span class="doccomment">/// doesn&#39;t support this code</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AbsInfo</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_abs_info</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_code</span>) };
-
-        <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">is_null</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">absinfo</span> <span class="op">=</span> <span class="ident">AbsInfo</span> {
-                <span class="ident">value</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">value</span>,
-                <span class="ident">minimum</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">minimum</span>,
-                <span class="ident">maximum</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">maximum</span>,
-                <span class="ident">fuzz</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">fuzz</span>,
-                <span class="ident">flat</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">flat</span>,
-                <span class="ident">resolution</span>: (<span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">resolution</span>,
-            };
-            <span class="prelude-val">Some</span>(<span class="ident">absinfo</span>)
-        }
-    }
-
-    <span class="doccomment">/// Change the abs info for the given EV_ABS event code, if the code exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function has no effect if `has_event_code` returns false for</span>
-    <span class="doccomment">/// this code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_abs_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>, <span class="ident">absinfo</span>: <span class="kw-2">&amp;</span><span class="ident">AbsInfo</span>) {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
-
-        <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_set_abs_info</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_code</span>, <span class="kw-2">&amp;</span><span class="ident">absinfo</span>.<span class="ident">as_raw</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>);
-        }
-    }
-
-    <span class="doccomment">/// Returns `true` if device support the InputProp/EventType/EventCode and false otherwise</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">has_event_type</span>(<span class="ident">ev_type</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">has_event_code</span>(<span class="ident">ev_code</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prop</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">InputProp</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">has_property</span>(<span class="ident">prop</span>)
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
-    }
-
-    <span class="doccomment">/// Forcibly enable an EventType/InputProp on this device, even if the underlying</span>
-    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
-    <span class="doccomment">/// report such events, it will now return true for has().</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">enable_event_type</span>(<span class="ident">ev_type</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">enable_event_code</span>(<span class="ident">ev_code</span>, <span class="prelude-val">None</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prop</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">InputProp</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">enable_property</span>(<span class="ident">prop</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="number">1</span>))
-        }
-    }
-
-    <span class="doccomment">/// Returns `true` if device support the property and false otherwise</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_property</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prop</span>: <span class="kw-2">&amp;</span><span class="ident">InputProp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_property</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="kw-2">*</span><span class="ident">prop</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> }
-    }
-
-    <span class="doccomment">/// Enables this property, a call to `set_fd` will overwrite any previously set values</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_property</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prop</span>: <span class="kw-2">&amp;</span><span class="ident">InputProp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_enable_property</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="kw-2">*</span><span class="ident">prop</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="kw">as</span> <span class="ident">i32</span> };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-    <span class="doccomment">/// Returns `true` is the device support this event type and `false` otherwise</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> }
-    }
-
-    <span class="doccomment">/// Return `true` is the device support this event type and code and `false` otherwise</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `has` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_event_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
-            <span class="ident">raw</span>::<span class="ident">libevdev_has_event_code</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
-        }
-    }
-
-    <span class="doccomment">///  Returns the current value of the event type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the device supports this event type and code, the return value is</span>
-    <span class="doccomment">/// set to the current value of this axis. Otherwise, `None` is returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
-        <span class="kw">let</span> <span class="ident">valid</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_fetch_event_value</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>)
-        };
-
-        <span class="kw">match</span> <span class="ident">valid</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>),
-        }
-    }
-
-    <span class="doccomment">/// Set the value for a given event type and code.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This only makes sense for some event types, e.g. setting the value for</span>
-    <span class="doccomment">/// EV_REL is pointless.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device. A future call to event_value() will return this</span>
-    <span class="doccomment">/// value, unless the value was overwritten by an event.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the device supports ABS_MT_SLOT, the value set for any ABS_MT_*</span>
-    <span class="doccomment">/// event code is the value of the currently active slot. You should use</span>
-    <span class="doccomment">/// `set_slot_value` instead.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the device supports ABS_MT_SLOT and the type is EV_ABS and the code is</span>
-    <span class="doccomment">/// ABS_MT_SLOT, the value must be a positive number less then the number of</span>
-    <span class="doccomment">/// slots on the device. Otherwise, `set_event_value` returns Err.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_event_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>, <span class="ident">val</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_set_event_value</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="ident">val</span> <span class="kw">as</span> <span class="ident">c_int</span>)
-        };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Check if there are events waiting for us.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function does not read an event off the fd and may not access the</span>
-    <span class="doccomment">/// fd at all. If there are events queued internally this function will</span>
-    <span class="doccomment">/// return non-zero. If the internal queue is empty, this function will poll</span>
-    <span class="doccomment">/// the file descriptor for data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a convenience function for simple processes, most complex programs</span>
-    <span class="doccomment">/// are expected to use select(2) or poll(2) on the file descriptor. The kernel</span>
-    <span class="doccomment">/// guarantees that if data is available, it is a multiple of sizeof(struct</span>
-    <span class="doccomment">/// input_event), and thus calling `next_event` when select(2) or</span>
-    <span class="doccomment">/// poll(2) return is safe. You do not need `has_event_pending` if</span>
-    <span class="doccomment">/// you&#39;re using select(2) or poll(2).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_event_pending</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_event_pending</span>(<span class="self">self</span>.<span class="ident">raw</span>) <span class="op">&gt;</span> <span class="number">0</span> }
-    }
 
     <span class="macro">product_getter</span><span class="macro">!</span>(
         <span class="ident">product_id</span>,
@@ -1083,9 +1065,83 @@
         <span class="ident">libevdev_set_id_version</span>
     );
 
-    <span class="doccomment">/// Return the driver version of a device already intialize with `set_fd`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_driver_version</span>(<span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i32</span> }
+    <span class="doccomment">/// Get the axis info for the given axis, as advertised by the kernel.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the `AbsInfo` for the given the code or None if the device</span>
+    <span class="doccomment">/// doesn&#39;t support this code</span>
+    <span class="kw">fn</span> <span class="ident">abs_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AbsInfo</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_abs_info</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_code</span>).<span class="ident">as_ref</span>()<span class="question-mark">?</span> };
+
+        <span class="prelude-val">Some</span>(<span class="ident">AbsInfo</span> {
+            <span class="ident">value</span>: <span class="ident">a</span>.<span class="ident">value</span>,
+            <span class="ident">minimum</span>: <span class="ident">a</span>.<span class="ident">minimum</span>,
+            <span class="ident">maximum</span>: <span class="ident">a</span>.<span class="ident">maximum</span>,
+            <span class="ident">fuzz</span>: <span class="ident">a</span>.<span class="ident">fuzz</span>,
+            <span class="ident">flat</span>: <span class="ident">a</span>.<span class="ident">flat</span>,
+            <span class="ident">resolution</span>: <span class="ident">a</span>.<span class="ident">resolution</span>,
+        })
+    }
+
+    <span class="doccomment">/// Change the abs info for the given EV_ABS event code, if the code exists.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function has no effect if `has_event_code` returns false for</span>
+    <span class="doccomment">/// this code.</span>
+    <span class="kw">fn</span> <span class="ident">set_abs_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>, <span class="ident">absinfo</span>: <span class="kw-2">&amp;</span><span class="ident">AbsInfo</span>) {
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+
+        <span class="kw">unsafe</span> {
+            <span class="ident">raw</span>::<span class="ident">libevdev_set_abs_info</span>(
+                <span class="self">self</span>.<span class="ident">raw</span>(),
+                <span class="ident">ev_code</span>,
+                <span class="kw-2">&amp;</span><span class="ident">absinfo</span>.<span class="ident">as_raw</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>,
+            );
+        }
+    }
+
+    <span class="doccomment">///  Returns the current value of the event type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the device supports this event type and code, the return value is</span>
+    <span class="doccomment">/// set to the current value of this axis. Otherwise, `None` is returned.</span>
+    <span class="kw">fn</span> <span class="ident">event_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+        <span class="kw">let</span> <span class="ident">valid</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="ident">raw</span>::<span class="ident">libevdev_fetch_event_value</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>)
+        };
+
+        <span class="kw">match</span> <span class="ident">valid</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>),
+        }
+    }
+
+    <span class="doccomment">/// Set the value for a given event type and code.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This only makes sense for some event types, e.g. setting the value for</span>
+    <span class="doccomment">/// EV_REL is pointless.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
+    <span class="doccomment">/// this device. A future call to event_value() will return this</span>
+    <span class="doccomment">/// value, unless the value was overwritten by an event.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the device supports ABS_MT_SLOT, the value set for any ABS_MT_*</span>
+    <span class="doccomment">/// event code is the value of the currently active slot. You should use</span>
+    <span class="doccomment">/// `set_slot_value` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the device supports ABS_MT_SLOT and the type is EV_ABS and the code is</span>
+    <span class="doccomment">/// ABS_MT_SLOT, the value must be a positive number less then the number of</span>
+    <span class="doccomment">/// slots on the device. Otherwise, `set_event_value` returns Err.</span>
+    <span class="kw">fn</span> <span class="ident">set_event_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>, <span class="ident">val</span>: <span class="ident">i32</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="ident">raw</span>::<span class="ident">libevdev_set_event_value</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">ev_type</span>, <span class="ident">ev_code</span>, <span class="ident">val</span> <span class="kw">as</span> <span class="ident">c_int</span>)
+        };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
     }
 
     <span class="macro">abs_getter</span><span class="macro">!</span>(
@@ -1119,16 +1175,21 @@
     <span class="doccomment">/// If the device supports this event code, the return value is</span>
     <span class="doccomment">/// is set to the current value of this axis. Otherwise, or</span>
     <span class="doccomment">/// if the event code is not an ABS_MT_* event code, `None` is returned</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slot_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">slot</span>: <span class="ident">u32</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">slot_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">slot</span>: <span class="ident">u32</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">valid</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_fetch_slot_value</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">slot</span> <span class="kw">as</span> <span class="ident">c_uint</span>, <span class="ident">ev_code</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>)
+            <span class="ident">raw</span>::<span class="ident">libevdev_fetch_slot_value</span>(
+                <span class="self">self</span>.<span class="ident">raw</span>(),
+                <span class="ident">slot</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
+                <span class="ident">ev_code</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>,
+            )
         };
 
         <span class="kw">match</span> <span class="ident">valid</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>),
         }
     }
 
@@ -1140,20 +1201,20 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function does not set event values for axes outside the ABS_MT range,</span>
     <span class="doccomment">/// use `set_event_value` instead.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_slot_value</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">slot</span>: <span class="ident">u32</span>,
-        <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>,
-        <span class="ident">val</span>: <span class="ident">i32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">set_slot_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">slot</span>: <span class="ident">u32</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>, <span class="ident">val</span>: <span class="ident">i32</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_set_slot_value</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">slot</span> <span class="kw">as</span> <span class="ident">c_uint</span>, <span class="ident">ev_code</span>, <span class="ident">val</span> <span class="kw">as</span> <span class="ident">c_int</span>)
+            <span class="ident">raw</span>::<span class="ident">libevdev_set_slot_value</span>(
+                <span class="self">self</span>.<span class="ident">raw</span>(),
+                <span class="ident">slot</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
+                <span class="ident">ev_code</span>,
+                <span class="ident">val</span> <span class="kw">as</span> <span class="ident">c_int</span>,
+            )
         };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 
@@ -1164,167 +1225,263 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// A device may provide ABS_MT_SLOT but a total number of 0 slots. Hence</span>
     <span class="doccomment">/// the return value of `None` for &quot;device does not provide slots at all&quot;</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_slots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_num_slots</span>(<span class="self">self</span>.<span class="ident">raw</span>) };
+    <span class="kw">fn</span> <span class="ident">num_slots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_num_slots</span>(<span class="self">self</span>.<span class="ident">raw</span>()) };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="op">-</span><span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">slots</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">slots</span>),
+            <span class="op">-</span><span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">slots</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">slots</span>),
         }
     }
 
     <span class="doccomment">/// Get the currently active slot.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This may differ from the value an ioctl may return at this time as</span>
-    <span class="doccomment">/// events may have been read off the fd since changing the slot value</span>
+    <span class="doccomment">/// events may have been read off the file since changing the slot value</span>
     <span class="doccomment">/// but those events are still in the buffer waiting to be processed.</span>
     <span class="doccomment">/// The returned value is the value a caller would see if it were to</span>
     <span class="doccomment">/// process events manually one-by-one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_slot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_current_slot</span>(<span class="self">self</span>.<span class="ident">raw</span>) };
+    <span class="kw">fn</span> <span class="ident">current_slot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_current_slot</span>(<span class="self">self</span>.<span class="ident">raw</span>()) };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="op">-</span><span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">slots</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">slots</span>),
+            <span class="op">-</span><span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">slots</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">slots</span>),
         }
     }
+}
 
-    <span class="doccomment">/// Forcibly enable an event type on this device, even if the underlying</span>
-    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
-    <span class="doccomment">/// report such events, it will now return true for libevdev_has_event_type().</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_enable_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) };
+<span class="doccomment">/// Opaque struct representing an evdev device with no backing file</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UninitDevice</span> {
+    <span class="ident">raw</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span>,
+}
 
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">UninitDevice</span> {}
+
+<span class="kw">impl</span> <span class="ident">DeviceWrapper</span> <span class="kw">for</span> <span class="ident">UninitDevice</span> {
+    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>
     }
+}
 
-    <span class="doccomment">/// Forcibly enable an event type on this device, even if the underlying</span>
-    <span class="doccomment">/// device does not support it. While this cannot make the device actually</span>
-    <span class="doccomment">/// report such events, it will now return true for libevdev_has_event_code().</span>
+<span class="kw">impl</span> <span class="ident">UninitDevice</span> {
+    <span class="doccomment">/// Initialize a new libevdev device.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// The last argument depends on the type and code:</span>
-    <span class="doccomment">/// If type is EV_ABS, data must be a pointer to a struct input_absinfo</span>
-    <span class="doccomment">/// containing the data for this axis.</span>
-    <span class="doccomment">/// If type is EV_REP, data must be a pointer to a int containing the data</span>
-    <span class="doccomment">/// for this axis.</span>
-    <span class="doccomment">/// For all other types, the argument must be NULL.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `enable` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_event_code</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ev_code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>,
-        <span class="ident">blob</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">ev_code</span>);
+    <span class="doccomment">/// Generally you should use Device::new_from_file instead of this method</span>
+    <span class="doccomment">/// This function only initializes the struct to sane default values.</span>
+    <span class="doccomment">/// To actually hook up the device to a kernel device, use `set_file`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UninitDevice</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">libevdev</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_new</span>() };
 
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">blob</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> {
-                <span class="ident">data</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">AbsInfo</span><span class="op">&gt;</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">absinfo</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">absinfo</span>.<span class="ident">as_raw</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>)
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>)
-            })
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ptr</span>::<span class="ident">null</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>);
-
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">raw</span>::<span class="ident">libevdev_enable_event_code</span>(
-                <span class="self">self</span>.<span class="ident">raw</span>,
-                <span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
-                <span class="ident">ev_code</span> <span class="kw">as</span> <span class="ident">c_uint</span>,
-                <span class="ident">data</span>,
-            )
-        };
-
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Forcibly disable an EventType/EventCode on this device, even if the</span>
-    <span class="doccomment">/// underlying device provides it. This effectively mutes the respective set of</span>
-    <span class="doccomment">/// events. has() will return false for this EventType/EventCode</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In most cases, a caller likely only wants to disable a single code, not</span>
-    <span class="doccomment">/// the whole type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Disabling EV_SYN will not work. In Peter&#39;s Words &quot;Don&#39;t shoot yourself</span>
-    <span class="doccomment">/// in the foot. It hurts&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Any</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_type</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventType</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">disable_event_type</span>(<span class="ident">ev_type</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">blob</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">EventCode</span><span class="op">&gt;</span>() {
-            <span class="self">self</span>.<span class="ident">disable_event_code</span>(<span class="ident">ev_code</span>)
+        <span class="kw">if</span> <span class="ident">libevdev</span>.<span class="ident">is_null</span>() {
+            <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="number">1</span>))
+            <span class="prelude-val">Some</span>(<span class="ident">UninitDevice</span> { <span class="ident">raw</span>: <span class="ident">libevdev</span> })
         }
     }
 
-    <span class="doccomment">/// Forcibly disable an event type on this device, even if the underlying</span>
-    <span class="doccomment">/// device provides it. This effectively mutes the respective set of</span>
-    <span class="doccomment">/// events. libevdev will filter any events matching this type and none will</span>
-    <span class="doccomment">/// reach the caller. libevdev_has_event_type() will return false for this</span>
-    <span class="doccomment">/// type.</span>
+    <span class="doccomment">/// Set the file for this struct and initialize internal data.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// In most cases, a caller likely only wants to disable a single code, not</span>
-    <span class="doccomment">/// the whole type. Use `disable_event_code` for that.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Disabling EV_SYN will not work. In Peter&#39;s Words &quot;Don&#39;t shoot yourself</span>
-    <span class="doccomment">/// in the foot. It hurts&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `disable` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_event_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ev_type</span>: <span class="kw-2">&amp;</span><span class="ident">EventType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_disable_event_type</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="kw-2">*</span><span class="ident">ev_type</span> <span class="kw">as</span> <span class="ident">c_uint</span>) };
-
+    <span class="doccomment">/// If the device changed and you need to re-read a device, use `Device::new_from_file` method.</span>
+    <span class="doccomment">/// If you need to change the file after</span>
+    <span class="doccomment">/// closing and re-opening the same device, use `change_file`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_file</span>(<span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
+        <span class="comment">// Don&#39;t call UninitDevice&#39;s destructor so we can reuse the inner libevdev</span>
+        <span class="kw">let</span> <span class="ident">leak</span> <span class="op">=</span> <span class="ident">ManuallyDrop</span>::<span class="ident">new</span>(<span class="self">self</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_set_fd</span>(<span class="ident">leak</span>.<span class="ident">raw</span>, <span class="ident">file</span>.<span class="ident">as_raw_fd</span>()) };
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Device</span> {
+                <span class="ident">file</span>,
+                <span class="ident">raw</span>: <span class="ident">leak</span>.<span class="ident">raw</span>,
+            }),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
-    <span class="doccomment">/// Forcibly disable an event code on this device, even if the underlying</span>
-    <span class="doccomment">/// device provides it. This effectively mutes the respective set of</span>
-    <span class="doccomment">/// events. libevdev will filter any events matching this type and code and</span>
-    <span class="doccomment">/// none will reach the caller. `has_event_code` will return false for</span>
-    <span class="doccomment">/// this code.</span>
+
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.5.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `set_file`. Some function names were changed so they
+        more closely match their type signature. See issue 42 for discussion
+        https://github.com/ndesh26/evdev-rs/issues/42&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_fd</span>(<span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">set_file</span>(<span class="ident">file</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">UninitDevice</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">unsafe</span> {
+            <span class="ident">raw</span>::<span class="ident">libevdev_free</span>(<span class="self">self</span>.<span class="ident">raw</span>);
+        }
+    }
+}
+
+<span class="doccomment">/// Opaque struct representing an evdev device</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Unlike libevdev, this `Device` mantains an associated file as an invariant</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Device</span> {
+    <span class="ident">file</span>: <span class="ident">File</span>,
+    <span class="ident">raw</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span>,
+}
+
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Device</span> {}
+
+<span class="kw">impl</span> <span class="ident">DeviceWrapper</span> <span class="kw">for</span> <span class="ident">Device</span> {
+    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">raw</span>::<span class="ident">libevdev</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Device</span> {
+    <span class="doccomment">/// Initialize a new libevdev device from the given file.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Disabling all event codes for a given type will not disable the event</span>
-    <span class="doccomment">/// type. Use `disable_event_type` for that.</span>
+    <span class="doccomment">/// This is a shortcut for</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a local modification only affecting only this representation of</span>
-    <span class="doccomment">/// this device.</span>
+    <span class="doccomment">/// ```rust,no_run</span>
+    <span class="doccomment">/// use evdev_rs::{Device, UninitDevice};</span>
+    <span class="doccomment">/// # use std::fs::File;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Disabling codes of type EV_SYN will not work. Don&#39;t shoot yourself in the</span>
-    <span class="doccomment">/// foot. It hurts.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: Please use the `disable` function instead. This function is only</span>
-    <span class="doccomment">/// available for the sake of maintaining compatibility with libevdev.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_event_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">ev_type</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
+    <span class="doccomment">/// let uninit_device = UninitDevice::new().unwrap();</span>
+    <span class="doccomment">/// # let file = File::open(&quot;/dev/input/event0&quot;).unwrap();</span>
+    <span class="doccomment">/// let device = uninit_device.set_file(file);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_file</span>(<span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">libevdev</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>();
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_disable_event_code</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_type</span>, <span class="ident">ev_code</span>) };
+            <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_new_from_fd</span>(<span class="ident">file</span>.<span class="ident">as_raw_fd</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">libevdev</span>) };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Device</span> {
+                <span class="ident">file</span>,
+                <span class="ident">raw</span>: <span class="ident">libevdev</span>,
+            }),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
+    }
+
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.5.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `new_from_file`. Some function names were changed so they
+        more closely match their type signature. See issue 42 for discussion
+        https://github.com/ndesh26/evdev-rs/issues/42&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_fd</span>(<span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Device</span><span class="op">&gt;</span> {
+        <span class="self">Self</span>::<span class="ident">new_from_file</span>(<span class="ident">file</span>)
+    }
+
+    <span class="doccomment">/// Returns the file associated with the device</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">File</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">file</span>
+    }
+
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.5.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `file`. This function can easily be misused. Calling
+        this method, then dropping the returned file will lead to failures
+        e.g. next_event will return an Err()&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>) };
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="kw">unsafe</span> { <span class="prelude-val">Some</span>(<span class="ident">File</span>::<span class="ident">from_raw_fd</span>(<span class="ident">result</span>)) },
+        }
+    }
+
+    <span class="doccomment">/// Change the file for this device, without re-reading the actual device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// On success, returns the file that was previously associated with this</span>
+    <span class="doccomment">/// device.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the file changes after initializing the device, for example after a</span>
+    <span class="doccomment">/// VT-switch in the X.org X server, this function updates the internal</span>
+    <span class="doccomment">/// file to the newly opened. No check is made that new file points to the</span>
+    <span class="doccomment">/// same device. If the device has changed, evdev&#39;s behavior is undefined.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// evdev device does not sync itself after changing the file and keeps the</span>
+    <span class="doccomment">/// current device state. Use next_event with the FORCE_SYNC flag to force</span>
+    <span class="doccomment">/// a re-sync.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust,no_run</span>
+    <span class="doccomment">/// use evdev_rs::{Device, UninitDevice, ReadFlag, ReadStatus};</span>
+    <span class="doccomment">/// # use std::fs::File;</span>
+    <span class="doccomment">/// # fn hidden() -&gt; std::io::Result&lt;()&gt; {</span>
+    <span class="doccomment">/// let mut dev = Device::new_from_file(File::open(&quot;/dev/input/input0&quot;)?)?;</span>
+    <span class="doccomment">/// dev.change_file(File::open(&quot;/dev/input/input1&quot;)?)?;</span>
+    <span class="doccomment">/// dev.next_event(ReadFlag::FORCE_SYNC);</span>
+    <span class="doccomment">/// while dev.next_event(ReadFlag::SYNC).ok().unwrap().0 == ReadStatus::Sync</span>
+    <span class="doccomment">///                             {} // noop</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// After changing the file, the device is assumed ungrabbed and a caller must</span>
+    <span class="doccomment">/// call libevdev_grab() again.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_file</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_change_fd</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">file</span>.<span class="ident">as_raw_fd</span>()) };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">file</span>;
+                <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">file</span>);
+                <span class="prelude-val">Ok</span>(<span class="ident">file</span>)
+            }
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.5.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer new_from_file. Some function names were changed so they
+        more closely match their type signature. See issue 42 for discussion
+        https://github.com/ndesh26/evdev-rs/issues/42&quot;</span>
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_fd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">File</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">change_file</span>(<span class="ident">file</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Grab or ungrab the device through a kernel EVIOCGRAB.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This prevents other clients (including kernel-internal ones such as</span>
+    <span class="doccomment">/// rfkill) from receiving events from this device. This is generally a</span>
+    <span class="doccomment">/// bad idea. Don&#39;t do this. Grabbing an already grabbed device, or</span>
+    <span class="doccomment">/// ungrabbing an ungrabbed device is a noop and always succeeds.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A grab is an operation tied to a file descriptor, not a device. If a</span>
+    <span class="doccomment">/// client changes the file descriptor with Device::change_file(), it must</span>
+    <span class="doccomment">/// also re-issue a grab with libevdev_grab().</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">grab</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">grab</span>: <span class="ident">GrabMode</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_grab</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">grab</span> <span class="kw">as</span> <span class="ident">c_int</span>) };
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Check if there are events waiting for us.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function does not consume an event and may not access the device</span>
+    <span class="doccomment">/// file at all. If there are events queued internally this function will</span>
+    <span class="doccomment">/// return true. If the internal queue is empty, this function will poll</span>
+    <span class="doccomment">/// the file descriptor for data.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a convenience function for simple processes, most complex programs</span>
+    <span class="doccomment">/// are expected to use select(2) or poll(2) on the file descriptor. The kernel</span>
+    <span class="doccomment">/// guarantees that if data is available, it is a multiple of sizeof(struct</span>
+    <span class="doccomment">/// input_event), and thus calling `next_event` when select(2) or</span>
+    <span class="doccomment">/// poll(2) return is safe. You do not need `has_event_pending` if</span>
+    <span class="doccomment">/// you&#39;re using select(2) or poll(2).</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_event_pending</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_has_event_pending</span>(<span class="self">self</span>.<span class="ident">raw</span>) <span class="op">&gt;</span> <span class="number">0</span> }
+    }
+
+    <span class="doccomment">/// Return the driver version of a device already intialize with `set_file`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
+        <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_get_driver_version</span>(<span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i32</span> }
     }
 
     <span class="doccomment">/// Set the device&#39;s EV_ABS axis to the value defined in the abs</span>
@@ -1348,15 +1505,15 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">EventCode</span>,
         <span class="ident">value</span>: <span class="ident">LedState</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ev_code</span>) <span class="op">=</span> <span class="ident">event_code_to_int</span>(<span class="ident">code</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> {
             <span class="ident">raw</span>::<span class="ident">libevdev_kernel_set_led_value</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">ev_code</span>, <span class="ident">value</span> <span class="kw">as</span> <span class="ident">c_int</span>)
         };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 
@@ -1365,12 +1522,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is a modification only affecting this representation of</span>
     <span class="doccomment">/// this device.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clock_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clockid</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_set_clock_id</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">clockid</span> <span class="kw">as</span> <span class="ident">c_int</span>) };
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clock_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clockid</span>: <span class="ident">i32</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">raw</span>::<span class="ident">libevdev_set_clock_id</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">clockid</span>) };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 
@@ -1400,7 +1557,7 @@
     <span class="doccomment">/// e.g. after changing the file descriptor, use the `evdev::FORCE_SYNC` flag.</span>
     <span class="doccomment">/// This triggers an internal sync of the device and `next_event` returns</span>
     <span class="doccomment">/// `ReadStatus::Sync`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">flags</span>: <span class="ident">ReadFlag</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ReadStatus</span>, <span class="ident">InputEvent</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">flags</span>: <span class="ident">ReadFlag</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ReadStatus</span>, <span class="ident">InputEvent</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ev</span> <span class="op">=</span> <span class="ident">raw</span>::<span class="ident">input_event</span> {
             <span class="ident">time</span>: <span class="ident">raw</span>::<span class="ident">timeval</span> {
                 <span class="ident">tv_sec</span>: <span class="number">0</span>,
@@ -1419,15 +1576,14 @@
                 <span class="ident">tv_sec</span>: <span class="ident">ev</span>.<span class="ident">time</span>.<span class="ident">tv_sec</span>,
                 <span class="ident">tv_usec</span>: <span class="ident">ev</span>.<span class="ident">time</span>.<span class="ident">tv_usec</span>,
             },
-            <span class="ident">event_type</span>: <span class="ident">int_to_event_type</span>(<span class="ident">ev</span>.<span class="ident">type_</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap</span>(),
             <span class="ident">event_code</span>: <span class="ident">int_to_event_code</span>(<span class="ident">ev</span>.<span class="ident">type_</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">ev</span>.<span class="ident">code</span> <span class="kw">as</span> <span class="ident">u32</span>),
             <span class="ident">value</span>: <span class="ident">ev</span>.<span class="ident">value</span>,
         };
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">raw</span>::<span class="ident">LIBEVDEV_READ_STATUS_SUCCESS</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">ReadStatus</span>::<span class="ident">Success</span>, <span class="ident">event</span>)),
-            <span class="ident">raw</span>::<span class="ident">LIBEVDEV_READ_STATUS_SYNC</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">ReadStatus</span>::<span class="ident">Sync</span>, <span class="ident">event</span>)),
-            <span class="ident">error</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
+            <span class="ident">raw</span>::<span class="ident">LIBEVDEV_READ_STATUS_SUCCESS</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">ReadStatus</span>::<span class="ident">Success</span>, <span class="ident">event</span>)),
+            <span class="ident">raw</span>::<span class="ident">LIBEVDEV_READ_STATUS_SYNC</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">ReadStatus</span>::<span class="ident">Sync</span>, <span class="ident">event</span>)),
+            <span class="ident">error</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">from_raw_os_error</span>(<span class="op">-</span><span class="ident">error</span>)),
         }
     }
 }
@@ -1440,4 +1596,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "evdev_rs";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "evdev_rs";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

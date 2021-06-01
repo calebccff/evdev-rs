@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Device","Opaque struct representing an evdev device"]]});
+initSidebarItems({"struct":[["Device","Opaque struct representing an evdev device"],["UninitDevice","Opaque struct representing an evdev device with no backing file"]],"trait":[["DeviceWrapper","Abstraction over structs which contain an inner `*mut libevdev`"]]});
