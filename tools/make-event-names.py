@@ -89,7 +89,7 @@ def print_enums(bits, prefix):
     associated_names = []
 
     print("#[allow(non_camel_case_types)]")
-    print('#[cfg_attr(feature = "serde", derive(Serialize), derive(Deserialize))]')
+    print('#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]')
     print("#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]")
     print("pub enum %s {" % enum_name)
     for val, names in list(getattr(bits, prefix).items()):
